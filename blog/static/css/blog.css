@@ -42,8 +42,8 @@ h1, h2, h3, h4 {
 .top-menu, .top-menu:hover, .top-menu:visited {
     color: #ffffff;
     float: right;
-    font-size: 26pt;
-    margin-right:20px;
+    font-size: 15pt;
+    margin-right:5px;
 }
 
 .post {
@@ -55,5 +55,13 @@ h1, h2, h3, h4 {
 }
 
 .post .btn {
+    float: right;
+}
+
+.comment {
+    margin: 20px 0px 20px 20px;
+}
+
+.comment .btn {
     float: right;
 }
