@@ -4,12 +4,25 @@ from django.shortcuts import render, get_object_or_404
 # Create your views here.
 from django.utils import timezone
 from blog.models import Post, Comment
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, SummerForm
 from django.shortcuts import redirect
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
 def post_list(request):
-    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
+    posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
+    paginator = Paginator(posts_list, 5)
+    page = request.GET.get('page')
+
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # 페이지가 정수가 아닌 경우 1페이지 출력
+        posts = paginator.page(1)
+    except EmptyPage:
+        # 페이지 범위가 넘어가면 맨 마지막 페이지 출력
+        posts = paginator.page(paginator.num_pages)
+
     return render(request, 'blog/post_list.html', {'posts': posts})
 
 
@@ -29,6 +42,7 @@ def post_new(request):
             return redirect('post_detail', pk=post.pk)
     else:
         form = PostForm()
+        # form = SummerForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
 

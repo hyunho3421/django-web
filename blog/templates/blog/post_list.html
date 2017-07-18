@@ -1,14 +1,25 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-    {% for post in posts %}
+    {% for post in posts.object_list %}
         <div class="post">
             <div class="date">
                 <p>published: {{ post.published_date }}</p>
             </div>
             <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
-            <p>{{ post.content|linebreaksbr }}</p>
+            {% autoescape off %}{{ post.content|linebreaksbr|truncatechars:600 }}{% endautoescape %}
+            <br />
             <a href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.comments.count }}</a>
         </div>
     {% endfor %}
+
+    <ul class="pager">
+        {% if posts.has_previous %}
+            <li class="previous"><a href="#">Previous</a></li>
+        {% endif %}
+
+        {% if posts.has_next %}
+            <li class="next"><a href="#">Next</a></li>
+        {% endif %}
+    </ul>
 {% endblock %}

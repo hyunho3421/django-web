@@ -2,12 +2,15 @@ from django.db import models
 
 # Create your models here.
 from django.utils import timezone
+from django_summernote import models as summer_model
+from django_summernote import fields as summer_fields
 
 
 class Post(models.Model):
     author = models.ForeignKey('auth.User')
     title = models.CharField(max_length=200)
-    content = models.TextField()
+    # content = models.TextField()
+    content = summer_fields.SummernoteTextField(default='')
     create_date = models.DateTimeField(default=timezone.now)
     published_date = models.DateTimeField(blank=True, null=True)
 
@@ -27,3 +30,7 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.content
+
+
+class SummerNote(summer_model.Attachment):
+    summer_field = summer_fields.SummernoteTextField(default='')
