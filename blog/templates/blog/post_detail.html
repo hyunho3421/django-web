@@ -1,41 +1,61 @@
 {% extends 'blog/base.html' %}
 
+{% block header %}
+    {% include 'blog/base_header_post.html' %}
+{% endblock %}
+
+<!-- Post Content -->
 {% block content %}
-    <div class="post">
-        {% if post.published_date %}
-            <div class="date">
-                {{ post.published_date }}
-            </div>
-        {% else %}
-            <a class="btn btn-default" href="{% url 'post_publish' pk=post.pk %}">Publish</a>
-        {% endif %}
-        <a class="btn btn-default" href="{% url 'post_remove' pk=post.pk %}"><span
-                class="glyphicon glyphicon-remove"></span></a>
-        <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span
-                class="glyphicon glyphicon-pencil"></span></a>
-        <h1>{{ post.title }}</h1>
-        {% autoescape off %}{{ post.content|linebreaksbr }}{% endautoescape %}
-    </div>
+    {#    <div class="post">#}
+    {#        {% if post.published_date %}#}
+    {#            <div class="date">#}
+    {#                {{ post.published_date }}#}
+    {#            </div>#}
+    {#        {% else %}#}
+    {#            <a class="btn btn-default" href="{% url 'post_publish' pk=post.pk %}">Publish</a>#}
+    {#        {% endif %}#}
+    {#        <a class="btn btn-default" href="{% url 'post_remove' pk=post.pk %}"><span#}
+    {#                class="glyphicon glyphicon-remove"></span></a>#}
+    {#        <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span#}
+    {#                class="glyphicon glyphicon-pencil"></span></a>#}
+    {#        <h1>{{ post.title }}</h1>#}
+    {#        {% autoescape off %}{{ post.content|linebreaksbr }}{% endautoescape %}#}
+    {#    </div>#}
 
-    <hr/>
-
-    <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">Add Comment</a>
-
-    {% for comment in post.comments.all %}
-        {% if user.is_authenticated %}
-            <div class="comment">
-                <div class="date">
-                    {{ comment.create_date }}
-                    <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span
-                            class="glyphicon glyphicon-remove"></span></a>
+    <article>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    {% autoescape off %}{{ post.content|linebreaksbr }}{% endautoescape %}
                 </div>
-                <strong>{{ comment.author }}</strong>
-                <p>{{ comment.content|linebreaks }}</p>
             </div>
+        </div>
+    </article>
 
-            <hr />
-        {% endif %}
-    {% empty %}
-        <p>No comments here yet :(</p>
-    {% endfor %}
+    {# TODO: 댓글 템플릿 붙일예정. #}
+    {#    <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">Add Comment</a>#}
+    {#    {% for comment in post.comments.all %}#}
+    {#        {% if user.is_authenticated %}#}
+    {#            <div class="comment">#}
+    {#                <div class="date">#}
+    {#                    {{ comment.create_date }}#}
+    {#                    <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span#}
+    {#                            class="glyphicon glyphicon-remove"></span></a>#}
+    {#                </div>#}
+    {#                <strong>{{ comment.author }}</strong>#}
+    {#                <p>{{ comment.content|linebreaks }}</p>#}
+    {#            </div>#}
+    {##}
+    {#            <hr />#}
+    {#        {% endif %}#}
+    {#    {% empty %}#}
+    {#        <p>No comments here yet :(</p>#}
+    {#    {% endfor %}#}
+
+
+    {# TODO: 앞, 뒤 Post 존재 여부 확인 기능 추가 #}
+    <ul class="pager">
+        <li class="previous"><a href="#">Previous</a></li>
+        <li class="next"><a href="#">Next</a></li>
+    </ul>
 {% endblock %}

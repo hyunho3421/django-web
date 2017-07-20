@@ -26,6 +26,7 @@ def post_list(request):
     return render(request, 'blog/post_list.html', {'posts': posts})
 
 
+# TODO: draft, post 나눠서 접근권한 설정
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     return render(request, 'blog/post_detail.html', {'post': post})
@@ -58,12 +59,25 @@ def post_edit(request, pk):
             return redirect('post_detail', pk=pk)
     else:
         form = PostForm(instance=post)
+
     return render(request, 'blog/post_edit.html', {'form': form})
 
 
 @login_required
 def post_draft_list(request):
-    posts = Post.objects.filter(published_date__isnull=True).order_by('-create_date')
+    posts_list = Post.objects.filter(published_date__isnull=True).order_by('-create_date')
+    paginator = Paginator(posts_list, 5)
+    page = request.GET.get('page')
+
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # 페이지가 정수가 아닌 경우 1페이지 출력
+        posts = paginator.page(1)
+    except EmptyPage:
+        # 페이지 범위가 넘어가면 맨 마지막 페이지 출력
+        posts = paginator.page(paginator.num_pages)
+
     return render(request, 'blog/post_draft_list.html', {'posts': posts})
 
 
@@ -74,6 +88,7 @@ def post_publish(request, pk):
     return redirect('post_detail', pk=pk)
 
 
+# FIXME: Post, draft 상태에 따라서 삭제 후 상태에 맞는 리시트로 이동하도록 해야함.
 @login_required
 def post_remove(request, pk):
     post = get_object_or_404(Post, pk=pk)

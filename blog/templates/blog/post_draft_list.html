@@ -1,11 +1,53 @@
 {% extends 'blog/base.html' %}
 
+{% block header %}
+    {% include 'blog/base_header_list.html' %}
+{% endblock %}
+
 {% block content %}
-    {% for post in posts %}
-        <div class="post">
-            <p class="date">created: {{ post.create_date|date:'d-m-Y' }}</p>
-            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
-            {% autoescape off %}{{ post.content|truncatechars:600 }}{% endautoescape %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h1>Draft Post</h1>
+
+                <div style="text-align: right">
+                    <a href="{% url 'post_new' %}" class="btn btn-default">Post</a>
+                </div>
+
+                {% for post in posts %}
+                    <div class="post-preview">
+                        <a href="{% url 'post_detail' pk=post.pk %}">
+                            <h2 class="post-title">
+                                {{ post.title }}
+                            </h2>
+                            <h3 class="post-subtitle">
+                                {% autoescape off %}{{ post.content|truncatechars_html:200 }}{% endautoescape %}
+                            </h3>
+                        </a>
+                        <p class="post-meta">Created by <a href="#">{{ post.author }}</a>
+                            on {{ post.create_date|date:'Y-m-d' }}</p>
+                    </div>
+                    <hr>
+                {% endfor %}
+
+
+                <div class="text-center">
+                    <ul class="pagination">
+                        {% if posts.has_previous %}
+                            <li class="previous"><a
+                                    href="#">&laquo;</a></li>
+                        {% endif %}
+
+                        {% for page in posts.paginator.page_range %}
+                            <li><a href="#">{{ page }}</a></li>
+                        {% endfor %}
+
+                        {% if posts.has_next %}
+                            <li class="next"><a href="#">&raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
         </div>
-    {% endfor %}
+    </div>
 {% endblock %}

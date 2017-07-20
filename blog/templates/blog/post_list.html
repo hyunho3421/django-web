@@ -1,31 +1,36 @@
+<!-- Main Content -->
 {% extends 'blog/base.html' %}
 
+{% block header %}
+    {% include 'blog/base_header_list.html' %}
+{% endblock %}
+
 {% block content %}
-    {% for post in posts.object_list %}
-        <div class="post">
-            <div class="date">
-                <p>published: {{ post.published_date }}</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                {% for post in posts %}
+                    <div class="post-preview">
+                        <a href="{% url 'post_detail' pk=post.pk %}">
+                            <h2 class="post-title">
+                                {{ post.title }}
+                            </h2>
+                            <h3 class="post-subtitle">
+                                {% autoescape off %}{{ post.content|truncatechars_html:200 }}{% endautoescape %}
+                            </h3>
+                        </a>
+                        <p class="post-meta">Posted by <a href="#">{{ post.author }}</a> on {{ post.create_date|date:'Y-m-d' }}</p>
+                    </div>
+                    <hr>
+                {% endfor %}
+
+{#                <!-- Pager -->#}
+{#                <ul class="pager">#}
+{#                    <li class="next">#}
+{#                        <a href="#">Older Posts &rarr;</a>#}
+{#                    </li>#}
+{#                </ul>#}
             </div>
-            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
-            {% autoescape off %}{{ post.content|linebreaksbr|truncatechars:600 }}{% endautoescape %}
-            <br/>
-            <a href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.comments.count }}</a>
         </div>
-    {% endfor %}
-
-    <div class="text-center">
-        <ul class="pagination">
-{#            {% if posts.has_previous %}#}
-{#                <li class="previous"><a href="{% url 'post_list' page=posts.previous_page_number %}">&laquo;</a></li>#}
-{#            {% endif %}#}
-
-            {% for page in posts.paginator.page_range %}
-                <li><a href="#">{{ page }}</a></li>
-            {% endfor %}
-
-            {% if posts.has_next %}
-                <li class="next"><a href="#">&raquo;</a></li>
-            {% endif %}
-        </ul>
     </div>
 {% endblock %}
