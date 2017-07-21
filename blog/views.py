@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
-def post_list(request):
+def post_list(request, HasTag=None):
     posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
     paginator = Paginator(posts_list, 5)
     page = request.GET.get('page')
@@ -26,10 +26,23 @@ def post_list(request):
     return render(request, 'blog/post_list.html', {'posts': posts})
 
 
-# TODO: draft, post 나눠서 접근권한 설정
 def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    return render(request, 'blog/post_detail.html', {'post': post})
+    post = get_object_or_404(Post, pk=pk, published_date__lte=timezone.now())
+
+    prev_post = Post.objects.filter(pk__lt=post.pk, published_date__isnull=True).order_by('-pk')
+    next_post = Post.objects.filter(pk__gt=post.pk, published_date__isnull=True).order_by('pk')
+
+    return render(request, 'blog/post_detail.html', {'post': post, 'prev_post': prev_post, 'next_post': next_post})
+
+
+@login_required
+def post_draft_detail(request, pk):
+    post = get_object_or_404(Post, pk=pk, published_date__isnull=True)
+
+    prev_post = Post.objects.filter(pk__lt=post.pk, published_date__isnull=True).order_by('-pk')
+    next_post = Post.objects.filter(pk__gt=post.pk, published_date__isnull=True).order_by('pk')
+
+    return render(request, 'blog/post_detail.html', {'post': post, 'prev_post': prev_post, 'next_post': next_post})
 
 
 @login_required
@@ -40,7 +53,7 @@ def post_new(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post_draft_detail', pk=post.pk)
     else:
         form = PostForm()
         # form = SummerForm()
@@ -88,12 +101,17 @@ def post_publish(request, pk):
     return redirect('post_detail', pk=pk)
 
 
-# FIXME: Post, draft 상태에 따라서 삭제 후 상태에 맞는 리시트로 이동하도록 해야함.
 @login_required
 def post_remove(request, pk):
     post = get_object_or_404(Post, pk=pk)
+
+    if post.published_date:
+        redirectUrl = 'post_list'
+    else:
+        redirectUrl = 'post_draft_list'
+
     post.delete()
-    return redirect('post_list')
+    return redirect(redirectUrl)
 
 
 def add_comment_to_post(request, pk):
