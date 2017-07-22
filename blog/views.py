@@ -9,8 +9,12 @@ from django.shortcuts import redirect
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
+def about(request):
+    return render(request, 'blog/about.html')
+
+
 def post_list(request, HasTag=None):
-    posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
+    posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-create_date')
     paginator = Paginator(posts_list, 5)
     page = request.GET.get('page')
 
@@ -29,10 +33,11 @@ def post_list(request, HasTag=None):
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk, published_date__lte=timezone.now())
 
-    prev_post = Post.objects.filter(pk__lt=post.pk, published_date__isnull=True).order_by('-pk')
-    next_post = Post.objects.filter(pk__gt=post.pk, published_date__isnull=True).order_by('pk')
+    prev_post = Post.objects.filter(pk__lt=post.pk, published_date__lte=timezone.now()).order_by('-pk')
+    next_post = Post.objects.filter(pk__gt=post.pk, published_date__lte=timezone.now()).order_by('pk')
 
-    return render(request, 'blog/post_detail.html', {'post': post, 'prev_post': prev_post, 'next_post': next_post})
+    return render(request, 'blog/post_detail.html',
+                  {'post': post, 'prev_post': prev_post, 'next_post': next_post})
 
 
 @login_required
@@ -42,7 +47,7 @@ def post_draft_detail(request, pk):
     prev_post = Post.objects.filter(pk__lt=post.pk, published_date__isnull=True).order_by('-pk')
     next_post = Post.objects.filter(pk__gt=post.pk, published_date__isnull=True).order_by('pk')
 
-    return render(request, 'blog/post_detail.html', {'post': post, 'prev_post': prev_post, 'next_post': next_post})
+    return render(request, 'blog/post_draft_detail.html', {'post': post, 'prev_post': prev_post, 'next_post': next_post})
 
 
 @login_required
@@ -56,7 +61,6 @@ def post_new(request):
             return redirect('post_draft_detail', pk=post.pk)
     else:
         form = PostForm()
-        # form = SummerForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
 
@@ -77,7 +81,7 @@ def post_edit(request, pk):
 
 
 @login_required
-def post_draft_list(request):
+def post_draft_list(request, HashTag=None):
     posts_list = Post.objects.filter(published_date__isnull=True).order_by('-create_date')
     paginator = Paginator(posts_list, 5)
     page = request.GET.get('page')
@@ -97,8 +101,8 @@ def post_draft_list(request):
 @login_required
 def post_publish(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    post.publish()
-    return redirect('post_detail', pk=pk)
+    return_url = post.publish()
+    return redirect(return_url, pk=pk)
 
 
 @login_required
@@ -106,12 +110,12 @@ def post_remove(request, pk):
     post = get_object_or_404(Post, pk=pk)
 
     if post.published_date:
-        redirectUrl = 'post_list'
+        redirect_url = 'post_list'
     else:
-        redirectUrl = 'post_draft_list'
+        redirect_url = 'post_draft_list'
 
     post.delete()
-    return redirect(redirectUrl)
+    return redirect(redirect_url)
 
 
 def add_comment_to_post(request, pk):

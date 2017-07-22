@@ -19,17 +19,31 @@
                                 {% autoescape off %}{{ post.content|truncatechars_html:200 }}{% endautoescape %}
                             </h3>
                         </a>
-                        <p class="post-meta">Posted by <a href="#">{{ post.author }}</a> on {{ post.create_date|date:'Y-m-d' }}</p>
+                        <p class="post-meta">Posted by <a href="#">{{ post.author }}</a>
+                            on {{ post.create_date|date:'Y-m-d' }}</p>
                     </div>
                     <hr>
                 {% endfor %}
 
-{#                <!-- Pager -->#}
-{#                <ul class="pager">#}
-{#                    <li class="next">#}
-{#                        <a href="#">Older Posts &rarr;</a>#}
-{#                    </li>#}
-{#                </ul>#}
+                <div class="text-center">
+                    <ul class="pagination">
+                        {% if posts.has_previous %}
+                            <li class="previous"><a href="?page={{ posts.previous_page_number }}">&laquo;</a></li>
+                        {% endif %}
+
+                        {% for page in posts.paginator.page_range %}
+                            {% if page == posts.number %}
+                                <li class="active"><a href="?page={{ page }}">{{ page }}</a></li>
+                            {% else %}
+                                <li><a href="?page={{ page }}">{{ page }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if posts.has_next %}
+                            <li class="next"><a href="?page={{ posts.next_page_number }}">&raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

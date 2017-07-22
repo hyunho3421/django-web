@@ -12,14 +12,17 @@
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     {% if user.is_authenticated %}
                         <div class="row" align="right">
-                            {% if post.published_date == null %}
-                                <a href="{% url 'post_publish' pk=post.pk %}" class="btn btn-default">publish</a>
-                            {% endif %}
+                            <a href="{% url 'post_publish' pk=post.pk %}" class="btn btn-default">private</a>
                             <a href="{% url 'post_remove' pk=post.pk %}" class="btn btn-default">delete</a>
                         </div>
                     {% endif %}
 
                     {% autoescape off %}{{ post.content|linebreaksbr }}{% endautoescape %}
+
+                    <br/>
+                    <div class="row" align="right">
+                        <a class="btn btn-default" href="{% url 'post_list' %}">List</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -47,11 +50,11 @@
 
     <ul class="pager">
         {% if prev_post %}
-            <li class="previous"><a href="{% url 'post_draft_detail' pk=prev_post.first.pk %}">Previous</a></li>
+            <li class="previous"><a href="{% url 'post_detail' pk=prev_post.first.pk %}">Previous</a></li>
         {% endif %}
 
         {% if next_post %}
-            <li class="next"><a href="{% url 'post_draft_detail' pk=next_post.first.pk %}">Next</a></li>
+            <li class="next"><a href="{% url 'post_detail' pk=next_post.first.pk %}">Next</a></li>
         {% endif %}
     </ul>
 {% endblock %}

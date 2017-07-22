@@ -15,8 +15,14 @@ class Post(models.Model):
     published_date = models.DateTimeField(blank=True, null=True)
 
     def publish(self):
-        self.published_date = timezone.now()
+        if self.published_date is None:
+            self.published_date = timezone.now()
+            redirect_url = 'post_detail'
+        else:
+            self.published_date = None
+            redirect_url = 'post_draft_detail'
         self.save()
+        return redirect_url
 
     def __str__(self):
         return self.title
