@@ -20,8 +20,22 @@
                     {% autoescape off %}{{ post.content|linebreaksbr }}{% endautoescape %}
 
                     <br/>
+                    {% if post.hash_tag %}
+                        <div class="row" align="right">
+                            <img src="/static/img/tag.png" width="20px" height="20px">
+                            {% for hash_tag in post.view_hash_tag %}
+                                <a href="{% url 'post_list' HashTag=hash_tag %}">{{ hash_tag }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <br/>
+
                     <div class="row" align="right">
-                        <a class="btn btn-default" href="{% url 'post_list' %}">List</a>
+                        {% if hash_tag is None %}
+                            <a class="btn btn-default" href="{% url 'post_list' %}">List</a>
+                        {% else %}
+                            <a class="btn btn-default" href="{% url 'post_list' HashTag=hash_tag%}">List</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -57,4 +71,8 @@
             <li class="next"><a href="{% url 'post_detail' pk=next_post.first.pk %}">Next</a></li>
         {% endif %}
     </ul>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/js/tag.js"></script>
 {% endblock %}

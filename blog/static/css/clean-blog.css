@@ -484,3 +484,10 @@ body {
     border: 1px solid gray;
     border-radius: 5px;
 }
+
+.post-form #id_hash_tag {
+    width: 720px;
+    margin-bottom: 5px;
+    border: 1px solid gray;
+    border-radius: 5px;
+}

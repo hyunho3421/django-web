@@ -11,10 +11,15 @@
                 <h1>New Post</h1>
                 <form method="post" class="post-form">
                     {% csrf_token %}
+                    {# TODO: summernote onkeyup callback 함수로 HashTag 적용 #}
                     {{ form|safe }}
-                    <button type="submit" class="save btn btn-default">Save</button>
+                    <button type="submit" class="save btn btn-default" style="float: right; margin-right: 30px">Save</button>
                 </form>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/js/tag.js"></script>
 {% endblock %}

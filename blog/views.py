@@ -1,9 +1,12 @@
+import re
+from urllib import request as urllib
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 from django.utils import timezone
-from blog.models import Post, Comment
+from blog.models import Post, Comment, HashTag
 from .forms import PostForm, CommentForm, SummerForm
 from django.shortcuts import redirect
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -13,8 +16,12 @@ def about(request):
     return render(request, 'blog/about.html')
 
 
-def post_list(request, HasTag=None):
-    posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-create_date')
+def post_list(request, HashTag=None):
+    if HashTag is None:
+        posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-create_date')
+    else:
+        posts_list = Post.objects.filter(published_date__lte=timezone.now(), hash_tag__contains=HashTag).order_by(
+            '-create_date')
     paginator = Paginator(posts_list, 5)
     page = request.GET.get('page')
 
@@ -30,24 +37,36 @@ def post_list(request, HasTag=None):
     return render(request, 'blog/post_list.html', {'posts': posts})
 
 
+# def tag_list(request, HashTag=None):
+#     posts_list = Post.objects.filter(published_date__lte=timezone.now(), hash_tag__isnull=False).order_by('')
+
+
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk, published_date__lte=timezone.now())
 
     prev_post = Post.objects.filter(pk__lt=post.pk, published_date__lte=timezone.now()).order_by('-pk')
     next_post = Post.objects.filter(pk__gt=post.pk, published_date__lte=timezone.now()).order_by('pk')
 
+    try:
+        reffer = request.META.get('HTTP_REFERER')
+        # 한글이 유니코드로 넘어와서 변경 시켜줘야함.
+        reffer = urllib.unquote(reffer)
+        hash_tag = re.search(r'(#[ㄱ-ㅎ가-힣a-zA-Z0-9]+)', reffer)[0]
+    except TypeError:
+        hash_tag = None
+
     return render(request, 'blog/post_detail.html',
-                  {'post': post, 'prev_post': prev_post, 'next_post': next_post})
+                  {'post': post, 'prev_post': prev_post, 'next_post': next_post, 'hash_tag': hash_tag})
 
 
 @login_required
 def post_draft_detail(request, pk):
     post = get_object_or_404(Post, pk=pk, published_date__isnull=True)
-
     prev_post = Post.objects.filter(pk__lt=post.pk, published_date__isnull=True).order_by('-pk')
     next_post = Post.objects.filter(pk__gt=post.pk, published_date__isnull=True).order_by('pk')
 
-    return render(request, 'blog/post_draft_detail.html', {'post': post, 'prev_post': prev_post, 'next_post': next_post})
+    return render(request, 'blog/post_draft_detail.html',
+                  {'post': post, 'prev_post': prev_post, 'next_post': next_post})
 
 
 @login_required
@@ -58,6 +77,9 @@ def post_new(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
+            for tag in post.get_hash_tag_list():
+                hashtag = HashTag(name=tag)
+                hashtag.save()
             return redirect('post_draft_detail', pk=post.pk)
     else:
         form = PostForm()
