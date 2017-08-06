@@ -1,0 +1,36 @@
+<!-- Main Content -->
+{% extends 'blog/base.html' %}
+
+{% block header %}
+    {% include 'blog/base_header_list.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h1>Tags</h1>
+                {# FIXME: css, 반응형으로 분리           #}
+                <div class="tag_name_list">
+                    {% for hash_tag in hash_tag_list %}
+                        <span style="font-size: {{ hash_tag.font_size }}%">
+                            <a href="{{ hash_tag.name }}">{{ hash_tag.tag_name }}</a>
+                        </span>&nbsp;
+                    {% endfor %}
+                </div>
+                <hr/>
+                {% for hash_tag in hash_tag_list %}
+                    <h2 id="{{ hash_tag.tag_name }}">{{ hash_tag.tag_name }}</h2>
+                    <ul class="tag_list_view">
+                        {% for post in hash_tag.post.all %}
+                            {% if not post.published_date_isnull %}
+                                <li><a href="{% url 'post_detail' pk=post.pk %}">{{ post }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

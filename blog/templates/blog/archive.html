@@ -1,0 +1,31 @@
+<!-- Main Content -->
+{% extends 'blog/base.html' %}
+
+{% block header %}
+    {% include 'blog/base_header_list.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                {% for hash_tag in hash_tag_list %}
+                    <h2 id="{{ hash_tag.tag_name }}">{{ hash_tag.name }}</h2>
+                    <ul>
+                        {% for post in hash_tag.post.all %}
+                            {% if post.published_date_isnull %}
+                            {% else %}
+                                <li><a href="{% url 'post_detail' pk=post.pk %}">{{ post }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                {% endfor %}
+
+{#                {% for hash_tag in hash_tag_list %}#}
+{#                    #}
+{#                {% endfor %}#}
+            </div>
+        </div>
+    </div>
+{% endblock %}
