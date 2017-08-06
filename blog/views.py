@@ -16,12 +16,9 @@ def about(request):
     return render(request, 'blog/about.html')
 
 
-def post_list(request, HashTag=None):
-    if HashTag is None:
-        posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-create_date')
-    else:
-        posts_list = Post.objects.filter(published_date__lte=timezone.now(), hash_tag__contains=HashTag).order_by(
-            '-create_date')
+def post_list(request):
+    posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-create_date')
+
     paginator = Paginator(posts_list, 5)
     page = request.GET.get('page')
 
@@ -35,10 +32,6 @@ def post_list(request, HashTag=None):
         posts = paginator.page(paginator.num_pages)
 
     return render(request, 'blog/post_list.html', {'posts': posts})
-
-
-# def tag_list(request, HashTag=None):
-#     posts_list = Post.objects.filter(published_date__lte=timezone.now(), hash_tag__isnull=False).order_by('')
 
 
 def post_detail(request, pk):
@@ -77,9 +70,10 @@ def post_new(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            for tag in post.get_hash_tag_list():
-                hashtag = HashTag(name=tag)
-                hashtag.save()
+
+            hashtag = request.POST['hashtag']
+            post.save_hash_tag_list(hashtag)
+
             return redirect('post_draft_detail', pk=post.pk)
     else:
         form = PostForm()
@@ -103,7 +97,7 @@ def post_edit(request, pk):
 
 
 @login_required
-def post_draft_list(request, HashTag=None):
+def post_draft_list(request):
     posts_list = Post.objects.filter(published_date__isnull=True).order_by('-create_date')
     paginator = Paginator(posts_list, 5)
     page = request.GET.get('page')
@@ -166,3 +160,14 @@ def comment_approve(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     comment.approve()
     return redirect('post_detail', pk=comment.post.pk)
+
+
+def tags(request):
+    hash_tag_list = HashTag.objects.filter(post__published_date__isnull=False).distinct()
+    return render(request, 'blog/hash_tag_list.html', {'hash_tag_list': hash_tag_list})
+
+
+def archive(request):
+    posts_list = Post.objects.filter(published_date__lte=timezone.now()).order_by('-create_date')
+
+    return render(request, 'blog/archive.html', {'': posts_list})

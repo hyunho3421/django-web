@@ -20,11 +20,14 @@
                     {% autoescape off %}{{ post.content|linebreaksbr }}{% endautoescape %}
 
                     <br/>
-                    {% if post.hash_tag %}
+                    {% if post.hashtag_set %}
                         <div class="row" align="right">
                             <img src="/static/img/tag.png" width="20px" height="20px">
-                            {% for hash_tag in post.view_hash_tag %}
-                                <a href="{% url 'post_list' HashTag=hash_tag %}">{{ hash_tag }}</a>
+                            {% for hash_tag in post.hashtag_set.all %}
+                                {{ hash_tag.tag_name }}
+                                {% if not forloop.last %}
+                                    ,
+                                {% endif %}
                             {% endfor %}
                         </div>
                     {% endif %}

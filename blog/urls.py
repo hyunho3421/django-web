@@ -18,5 +18,7 @@ urlpatterns = [
     url(r'^post/(?P<pk>\d+)/comment/$', views.add_comment_to_post, name='add_comment_to_post'),
     url(r'^comment/(?P<pk>\d+)/remove/$', views.comment_remove, name='comment_remove'),
     url(r'^about/$', views.about, name='about'),
+    url(r'^tags/$', views.tags, name='tags'),
+    url(r'^archive/$', views.archive, name='archive'),
     url(r'^summernote/', include('django_summernote.urls')),
 ]
